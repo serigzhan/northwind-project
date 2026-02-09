@@ -73,7 +73,7 @@ public class ProductRepository : IProductRepository
         return connection.Query<Product>(sql, parameters).ToList();
     }
 
-    public Product GetById(int id)
+    public Product? GetById(int id)
     {
         const string sql = @"
             SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit,

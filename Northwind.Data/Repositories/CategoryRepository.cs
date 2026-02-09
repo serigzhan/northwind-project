@@ -45,7 +45,7 @@ public class CategoryRepository : ICategoryRepository
         return connection.Query<Category>(sql).ToList();
     }
 
-    public Category GetById(int id)
+    public Category? GetById(int id)
     {
         const string sql = "SELECT CategoryID, CategoryName, Description FROM Categories WHERE CategoryID = @Id";
 

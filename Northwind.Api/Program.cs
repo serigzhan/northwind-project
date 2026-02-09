@@ -9,7 +9,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-var connectionString = builder.Configuration.GetConnectionString("NorthwindConnection");
+var connectionString = builder.Configuration.GetConnectionString("NorthwindConnection") ?? "Server=(localdb)\\MSSQLLocalDB;Database=NorthwindDB;Trusted_Connection=True;";
 
 builder.Services.AddScoped<ICategoryRepository>(sp => new CategoryRepository(connectionString));
 builder.Services.AddScoped<IProductRepository>(sp => new ProductRepository(connectionString));
@@ -25,3 +25,5 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
