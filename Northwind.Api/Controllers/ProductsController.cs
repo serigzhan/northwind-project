@@ -12,12 +12,13 @@ public class ProductsController(IProductRepository repository) : ControllerBase
     private readonly IProductRepository _repository = repository;
 
     [HttpGet]
-    public IActionResult GetAll()
+    public IActionResult GetAll(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] int? categoryId = null)
     {
-
-        var products = _repository.GetAll();
+        var products = _repository.GetAll(pageNumber, pageSize, categoryId);
         return Ok(products);
-
     }
 
     [HttpGet("{id}")]

@@ -43,18 +43,41 @@ public class ProductRepository : IProductRepository
     {
         const string sql = @"
             SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit,
-                   UnitPrice, UnitsInStock, UnitsOnOrder AS UnitsOnOrder, ReorderLevel, Discontinued
+                   UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued
             FROM Products";
 
         using var connection = Connection;
         return connection.Query<Product>(sql).ToList();
     }
 
+    public IEnumerable<Product> GetAll(int pageNumber, int pageSize, int? categoryId)
+    {
+        var sql = @"
+            SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit,
+                   UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued
+            FROM Products";
+
+        var parameters = new DynamicParameters();
+
+        if (categoryId.HasValue)
+        {
+            sql += " WHERE CategoryID = @CategoryId";
+            parameters.Add("CategoryId", categoryId.Value);
+        }
+
+        sql += " ORDER BY ProductID OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+        parameters.Add("Offset", (pageNumber - 1) * pageSize);
+        parameters.Add("PageSize", pageSize);
+
+        using var connection = Connection;
+        return connection.Query<Product>(sql, parameters).ToList();
+    }
+
     public Product GetById(int id)
     {
         const string sql = @"
             SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit,
-                   UnitPrice, UnitsInStock, UnitsOnOrder AS UnitsOnOrder, ReorderLevel, Discontinued
+                   UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued
             FROM Products
             WHERE ProductID = @Id";
 
