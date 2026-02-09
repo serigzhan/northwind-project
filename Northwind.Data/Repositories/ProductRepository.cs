@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Dapper;
+using Microsoft.Data.SqlClient;
 using Northwind.Data.Interfaces;
 using Northwind.Data.Models;
 using System.Data;
@@ -19,26 +20,64 @@ public class ProductRepository : IProductRepository
 
     public void Add(Product product)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            INSERT INTO Products (ProductName, SupplierID, CategoryID, QuantityPerUnit,
+                                  UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued)
+            VALUES (@ProductName, @SupplierID, @CategoryID, @QuantityPerUnit,
+                    @UnitPrice, @UnitsInStock, @UnitsOnOrder, @ReorderLevel, @Discontinued);
+            SELECT CAST(SCOPE_IDENTITY() AS int);";
+
+        using var connection = Connection;
+        product.ProductID = connection.QuerySingle<int>(sql, product);
     }
 
     public void Delete(int id)
     {
-        throw new NotImplementedException();
+        const string sql = "DELETE FROM Products WHERE ProductID = @Id";
+
+        using var connection = Connection;
+        connection.Execute(sql, new { Id = id });
     }
 
     public IEnumerable<Product> GetAll()
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit,
+                   UnitPrice, UnitsInStock, UnitsOnOrder AS UnitsOnOrder, ReorderLevel, Discontinued
+            FROM Products";
+
+        using var connection = Connection;
+        return connection.Query<Product>(sql).ToList();
     }
 
     public Product GetById(int id)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit,
+                   UnitPrice, UnitsInStock, UnitsOnOrder AS UnitsOnOrder, ReorderLevel, Discontinued
+            FROM Products
+            WHERE ProductID = @Id";
+
+        using var connection = Connection;
+        return connection.QuerySingleOrDefault<Product>(sql, new { Id = id });
     }
 
     public void Update(Product product)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            UPDATE Products
+            SET ProductName = @ProductName,
+                SupplierID = @SupplierID,
+                CategoryID = @CategoryID,
+                QuantityPerUnit = @QuantityPerUnit,
+                UnitPrice = @UnitPrice,
+                UnitsInStock = @UnitsInStock,
+                UnitsOnOrder = @UnitsOnOrder,
+                ReorderLevel = @ReorderLevel,
+                Discontinued = @Discontinued
+            WHERE ProductID = @ProductID";
+
+        using var connection = Connection;
+        connection.Execute(sql, product);
     }
 }
